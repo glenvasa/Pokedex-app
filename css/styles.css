@@ -1,0 +1,13 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Ubuntu", sans-serif;
+  color: #000;
+  background-color: #f7dc6f;
+}
+
+p {
+  font-weight: bold;
+}
