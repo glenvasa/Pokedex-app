@@ -11,23 +11,3 @@ body {
 p {
   font-weight: bold;
 }
-
-.button-class {
-  border: 3px solid blue;
-  background-color: #6ff782;
-  color: #c70039;
-  font-weight: bold;
-  font-size: 16px;
-  text-decoration: none;
-  display: inline-block;
-  margin: 6px 10px;
-  padding: 16px 32px;
-  text-align: center;
-  cursor: pointer;
-}
-
-.button-class:hover,
-.button-class:focus {
-  /* opacity: 0.6; */
-  font-size: 18px;
-}
