@@ -25,6 +25,13 @@ let pokemonRepository = (function () {
     button.classList.add('button-class');
     pokemonListItem.appendChild(button);
     pokemonList.appendChild(pokemonListItem);
+    button.addEventListener('click', function (event){
+      showDetails(pokemon);
+    })
+  }
+
+  function showDetails(pokemon) {
+    console.log(pokemon);
   }
 
   return {
@@ -36,10 +43,10 @@ let pokemonRepository = (function () {
 
 pokemonRepository.add(
   { name: 'Charizard', height: 1.7, types: ['fire', 'flying']}
-  );
+);
 
 pokemonRepository.getAll().forEach(function(pokemon) {
   pokemonRepository.addListItem(pokemon);
 });
 
-console.log(pokemonRepository.getAll());
+// console.log(pokemonRepository.getAll());
