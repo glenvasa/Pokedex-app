@@ -1,38 +1,34 @@
 let pokemonRepository = (function () {
-  let pokemonList = [];
+  let repository = [];
   let apiUrl = 'https://pokeapi.co/api/v2/pokemon/?limit=150';
-  let modalContainer = document.querySelector('#modal-container');
+  let $pokemonList = $('ul')
+  let $modalContainer = $('#modal-container');
 
   function getAll () {
-    return pokemonList;
+    return repository;
   }
 
   function add(pokemon) {
     if (typeof(pokemon) === 'object') {
-      pokemonList.push(pokemon);
+      repository.push(pokemon);
     } else {
       console.log('You didn\'t enter valid Pokemon data');
     }
   }
 
   function addListItem(pokemon) {
-    let pokemonList = document.querySelector('.pokemon-list');
-    let pokemonListItem = document.createElement('li');
-    let button = document.createElement('button');
-    button.innerText = pokemon.name;
-    button.classList.add('button-class');
-    pokemonListItem.appendChild(button);
-    pokemonList.appendChild(pokemonListItem);
-    button.addEventListener('click', function (event){
-      showDetails(pokemon);
-    })
+    let $listItem = $('<li></li>');
+    $pokemonList.append($listItem);
+    let $button = $('<button type="button" id="pokemon-name" class="btn btn-default btn-lg btn-block list-group-item list-group-item-action col-12 pokemon-button" data-toggle="modal" data-target="#exampleModal"></button>');
+    $button.text(pokemon.name)
+    $listItem.append($button);
+    $button.on('click', function () {showDetails(pokemon);});
+
   }
 
   function loadList() {
-    return fetch(apiUrl).then(function (response) {
-      return response.json();
-    }).then(function (json) {
-      json.results.forEach(function (item) {
+    return $.ajax(apiUrl, {dataType: 'json'}).then(function(item) {
+      $.each(item.results, function(i, item){
         let pokemon = {
           name: item.name,
           detailsUrl: item.url
@@ -45,51 +41,48 @@ let pokemonRepository = (function () {
   }
 
   function loadDetails(item) {
-    let url = item.detailsUrl;
-    return fetch(url).then(function (response) {
-      return response.json();
-    }).then(function (details) {
-      item.imageUrl = details.sprites.front_default;
+    let $url = item.detailsUrl;
+    return $.ajax($url).then(function(details) {
+      item.imageUrlFront = details.sprites.front_default;
+      item.imageUrlBack = details.sprites.back_default;
+      item.weight = details.weight;
       item.height = details.height;
-      item.types = details.types;
-    })
+      // item.types = Object.keys(details.types);
+    });
   }
 
   function showModal(item) {
-    // Clear all existing modal content
-    modalContainer.innerHTML = '';
+    let modalBody = $(".modal-body");
+    let modalTitle = $(".modal-title");
+    let modalHeader = $(".modal-header");
 
-    let modal = document.createElement('div');
-    modal.classList.add('modal');
+    modalTitle.empty();
+    modalBody.empty();
 
-    //Add the new modal content
-    let closeButtonElement = document.createElement('button');
-    closeButtonElement.classList.add('modal-close');
-    closeButtonElement.innerText = 'Close';
-    closeButtonElement.addEventListener('click', hideModal);
+    let nameElement = $("<h1>" + item.name +  "</h1>");
+    let imageElementFront = $('<img class="modal-img" style="width:50%">');
+    imageElementFront.attr("src", item.imageUrlFront);
+    let imageElementBack = $('<img class="modal-img" style="width:50%">');
+    imageElementBack.attr("src", item.imageUrlBack);
+    let heightElement = $("<h5>" + "height: " + item.height + "</h5>");
+    let weightElement = $("<h5>" + "weight: " + item.weight + "</h5>");
+    // let typesElement = $("<p>" + "types: " + item.types + "</p>");
+    // let abilititesElement = $("<p>" + "abilities: " + item.abilities + "</p>");
 
-    let titleElement = document.createElement('h1');
-    titleElement.innerText = item.name;
+    modalTitle.append(nameElement);
+    modalBody.append(imageElementFront);
+    modalBody.append(imageElementBack);
+    modalBody.append(heightElement);
+    modalBody.append(weightElement);
+    // modalBody.append(typesElement);
+    // modalBody.append(abilitiesElement);
 
-    let heightElement = document.createElement('p');
-    heightElement.innerText = 'Height: ' + item.height;
-
-    let imageElement = document.createElement('img');
-    // imageElement.src = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png';
-    imageElement.src = item.imageUrl;
-
-    modal.appendChild(closeButtonElement);
-    modal.appendChild(titleElement);
-    modal.appendChild(heightElement);
-    modal.appendChild(imageElement);
-    modalContainer.appendChild(modal);
-
-    modalContainer.classList.add('is-visible');
   }
 
   function hideModal() {
-    modalContainer.classList.remove('is-visible');
-  }
+    $modalContainer.removeClass('is-visible');}
+    $(document).keydown(function (e) {  if (e.key === 'Escape') { hideModal();} });
+    $modalContainer.click(function() {hideModal()} );
 
   function showDetails(item) {
     pokemonRepository.loadDetails(item).then(function () {
@@ -97,31 +90,27 @@ let pokemonRepository = (function () {
     });
   }
 
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalContainer.classList.contains('is-visible')) {
-      hideModal();
-    }
-  });
-
-  modalContainer.addEventListener('click', (e) => {
-    // Since this is also triggered when clicking INSIDE the modal container,
-    // We only want to close if the user clicks directly on the overlay
-    let target = e.target;
-    if (target === modalContainer) {
-      hideModal();
-    }
-  });
-
   return {
-    add: add,
     getAll : getAll,
+    add: add,
     addListItem: addListItem,
     loadList: loadList,
     loadDetails: loadDetails,
     showModal: showModal,
     hideModal: hideModal,
+    showDetails: showDetails
   };
 })();
+
+// Search for specific pokemon
+$(document).ready(function(){
+  $('#pokemon-search').on('keyup', function() {
+    let value = $(this).val().toLowerCase();
+    $('.list-group-item').filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
 
 pokemonRepository.loadList().then(function () {
   pokemonRepository.getAll().forEach(function (pokemon) {
