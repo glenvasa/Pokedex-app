@@ -47,6 +47,7 @@ a h1 {
 
 .page-container {
   margin-top: 82px;
+  background-color: #229954;
 }
 
 .pokemon-search {
@@ -62,8 +63,9 @@ a h1 {
   font-weight: bold;
   border: 1px solid #192841;
   text-align: center;
-  background-color: #daf7a6
-
+  background-color: #daf7a6;
+  float: none;
+  margin: 0 auto;
 }
 
 
